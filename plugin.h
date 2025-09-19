@@ -5,7 +5,7 @@
 #define PLUGIN_ID      "com.evan.harmonicisolator"
 #define PLUGIN_NAME    "Evan's Harmonic Isolator"  
 #define PLUGIN_VENDOR  "Evan"
-#define PLUGIN_VERSION "0.9.3"  // Elliptic filter release
+#define PLUGIN_VERSION "0.9.4"  // Elliptic filter release
 #define PLUGIN_DESC    "A tunable harmonic isolator with stepped frequency selection - elliptic AA filters"
 
 // parameter definitions - FINE_TUNE is now at position 0!
@@ -13,12 +13,12 @@ enum {
     PARAM_FINE_TUNE = 0,  // NEW! Placeholder parameter
     PARAM_ROOT_NOTE,      // now 1
     PARAM_BANDWIDTH,      // now 2
-    PARAM_ROOT_GAIN,      // now 3 - renamed from ROOT_LEVEL
+    PARAM_ROOT_GAIN,      // now 3
     PARAM_HARMONICS,      // now 4
-    PARAM_LO_OCTAVES,     // now 5 - split from octaves
-    PARAM_HI_OCTAVES,     // now 6 - split from octaves
-    PARAM_SPREAD,         // now 7 - stereo spread (before LPF)
-    PARAM_SATURATION,     // now 8 - NEW! saturation amount
+    PARAM_LO_OCTAVES,     // now 5
+    PARAM_HI_OCTAVES,     // now 6
+    PARAM_SPREAD,         // now 7
+    PARAM_SATURATION,     // now 8
     PARAM_LPF_CUTOFF,     // now 9
     PARAM_WET_BOOST,      // now 10
     PARAM_DRY_WET,        // now 11
