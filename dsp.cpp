@@ -2,7 +2,20 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
-#include <immintrin.h>  // For SIMD and flush-to-zero
+
+// Cross-platform SIMD support
+#ifdef __APPLE__
+    // Apple universal binary support
+    #if defined(__x86_64__) || defined(__i386__)
+        #include <immintrin.h>  // x86 SIMD
+    #elif defined(__aarch64__) || defined(__arm64__)
+        // ARM64: disable x86 SIMD for now
+        #undef __SSE__
+    #endif
+#else
+    // Non-Apple platforms - assume x86
+    #include <immintrin.h>
+#endif
 
 static const double PI = 3.14159265358979323846;
 
@@ -305,61 +318,61 @@ void trigger_parameter_smoothing(minimal_plugin_t *p) {
     const float epsilon = 0.0001f;
     
     // Check each parameter and activate smoothing if needed
-    if (fabsf(p->bandwidth - p->bandwidth_smooth.target) > epsilon) {
+    if (fabs(p->bandwidth - p->bandwidth_smooth.target) > epsilon) {
         p->bandwidth_smooth.target = p->bandwidth;
         p->bandwidth_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->root_gain - p->root_gain_smooth.target) > epsilon) {
+    if (fabs(p->root_gain - p->root_gain_smooth.target) > epsilon) {
         p->root_gain_smooth.target = p->root_gain;
         p->root_gain_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->lo_octaves - p->lo_octaves_smooth.target) > epsilon) {
+    if (fabs(p->lo_octaves - p->lo_octaves_smooth.target) > epsilon) {
         p->lo_octaves_smooth.target = p->lo_octaves;
         p->lo_octaves_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->hi_octaves - p->hi_octaves_smooth.target) > epsilon) {
+    if (fabs(p->hi_octaves - p->hi_octaves_smooth.target) > epsilon) {
         p->hi_octaves_smooth.target = p->hi_octaves;
         p->hi_octaves_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->harmonics - p->harmonics_smooth.target) > epsilon) {
+    if (fabs(p->harmonics - p->harmonics_smooth.target) > epsilon) {
         p->harmonics_smooth.target = p->harmonics;
         p->harmonics_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->saturation - p->saturation_smooth.target) > epsilon) {
+    if (fabs(p->saturation - p->saturation_smooth.target) > epsilon) {
         p->saturation_smooth.target = p->saturation;
         p->saturation_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->lpf_cutoff - p->lpf_cutoff_smooth.target) > epsilon) {
+    if (fabs(p->lpf_cutoff - p->lpf_cutoff_smooth.target) > epsilon) {
         p->lpf_cutoff_smooth.target = p->lpf_cutoff;
         p->lpf_cutoff_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->wet_boost - p->wet_boost_smooth.target) > epsilon) {
+    if (fabs(p->wet_boost - p->wet_boost_smooth.target) > epsilon) {
         p->wet_boost_smooth.target = p->wet_boost;
         p->wet_boost_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->dry_wet - p->dry_wet_smooth.target) > epsilon) {
+    if (fabs(p->dry_wet - p->dry_wet_smooth.target) > epsilon) {
         p->dry_wet_smooth.target = p->dry_wet;
         p->dry_wet_smooth.active = true;
         p->any_smoothing_active = true;
     }
     
-    if (fabsf(p->spread - p->spread_smooth.target) > epsilon) {
+    if (fabs(p->spread - p->spread_smooth.target) > epsilon) {
         p->spread_smooth.target = p->spread;
         p->spread_smooth.active = true;
         p->any_smoothing_active = true;
@@ -470,12 +483,12 @@ void process_parameter_smoothing(minimal_plugin_t *p, uint32_t frames) {
     p->any_smoothing_active = still_active;
     
     // Check if smoothed values affecting coefficients have changed enough
-    if (fabsf(p->bandwidth_smooth.current - p->last_bandwidth) > smooth_threshold ||
-        fabsf(p->lo_octaves_smooth.current - p->last_lo_octaves) > smooth_threshold ||
-        fabsf(p->hi_octaves_smooth.current - p->last_hi_octaves) > smooth_threshold ||
-        fabsf(p->harmonics_smooth.current - p->last_harmonics) > smooth_threshold ||
-        fabsf(p->lpf_cutoff_smooth.current - p->last_lpf_cutoff) > smooth_threshold ||
-        fabsf(p->root_gain_smooth.current - p->last_root_gain) > smooth_threshold) {
+    if (fabs(p->bandwidth_smooth.current - p->last_bandwidth) > smooth_threshold ||
+        fabs(p->lo_octaves_smooth.current - p->last_lo_octaves) > smooth_threshold ||
+        fabs(p->hi_octaves_smooth.current - p->last_hi_octaves) > smooth_threshold ||
+        fabs(p->harmonics_smooth.current - p->last_harmonics) > smooth_threshold ||
+        fabs(p->lpf_cutoff_smooth.current - p->last_lpf_cutoff) > smooth_threshold ||
+        fabs(p->root_gain_smooth.current - p->last_root_gain) > smooth_threshold) {
         p->coefficients_need_update = true;
     }
 }
