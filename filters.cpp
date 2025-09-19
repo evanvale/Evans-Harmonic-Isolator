@@ -1,6 +1,17 @@
 #include "plugin.h"
 #include <cmath>
-#include <immintrin.h>  // For SIMD
+
+// Cross-platform SIMD support
+#ifdef __APPLE__
+    #if defined(__x86_64__) || defined(__i386__)
+        #include <immintrin.h>  // x86 SIMD
+    #elif defined(__aarch64__) || defined(__arm64__)
+        // ARM64: disable x86 SIMD for now
+        #undef __SSE__
+    #endif
+#else
+    #include <immintrin.h>
+#endif
 
 // Constant power panning function
 void calc_constant_power_pan(float spread, float *pan_L, float *pan_R) {
