@@ -62,5 +62,5 @@ target_include_directories(evans_comb_filter PRIVATE ${clap_SOURCE_DIR}/include)
 set_target_properties(evans_comb_filter PROPERTIES
     PREFIX ""
     SUFFIX ".clap"
-    OUTPUT_NAME "Evans Harmonic Isolator"
+    OUTPUT_NAME "EvansHarmonicIsolator"
 )
