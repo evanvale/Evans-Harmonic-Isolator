@@ -47,12 +47,12 @@ FetchContent_MakeAvailable(clap)
 
 # create the plugin library
 add_library(evans_comb_filter SHARED
-    src/plugin.h
-    src/plugin.cpp
-    src/dsp.cpp
-    src/filters.cpp
-    src/params.cpp
-    src/utils.cpp
+    plugin.h
+    plugin.cpp
+    dsp.cpp
+    filters.cpp
+    params.cpp
+    utils.cpp
 )
 
 # Link CLAP headers
