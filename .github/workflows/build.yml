@@ -22,55 +22,49 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux-x64
-          - os: macos-13  # Intel mac
+          - os: macos-13
             platform: macos-intel
-          - os: macos-14  # Apple Silicon mac
+          - os: macos-14
             platform: macos-arm64
           - os: windows-latest
             platform: windows-x64
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup CMake (Linux/Windows)
-      if: runner.os != 'macOS'
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.20'
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
-    - name: Setup CMake (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install cmake
+      - name: Setup CMake (Linux/Windows)
+        if: runner.os != 'macOS'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.20'
 
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Setup CMake (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake
 
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
 
-    - name: Build
-      run: cmake --build build --config Release
+      - name: Build
+        run: cmake --build build --config Release
 
-    - name: List build output (debug)
-      shell: bash
-      run: |
-        echo "Build directory contents:"
-        find build -name "*.clap" -o -name "*.dll" -o -name "*.dylib" -o -name "*.so" 2>/dev/null || true
-        echo "Full build directory:"
-        ls -la build/ || true
+      - name: Rename plugin for platform
+        shell: bash
+        run: |
+          cp build/EvansHarmonicIsolator.clap EvansHarmonicIsolator-${{ matrix.platform }}.clap
 
-    - name: Upload plugin artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: evans-harmonic-isolator-${{ matrix.platform }}
-        path: |
-          build/*.clap
-          build/Release/*.clap
-          build/Debug/*.clap
-        retention-days: 30
-        if-no-files-found: warn
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: EvansHarmonicIsolator-${{ matrix.platform }}.clap
+          retention-days: 30
+          if-no-files-found: error
 
   release:
     name: Create Release
@@ -79,16 +73,18 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     
     steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: artifacts/**/*.clap
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*.zip
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
