@@ -10,28 +10,19 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")     # Support macOS Catalina and newer
 endif()
 
-# Performance optimization flags
+# Force no optimization to preserve audio quality
+# Explicitly disable all optimizations that can break DSP floating point math
+set(CMAKE_CXX_FLAGS "-g -O0")
+set(CMAKE_C_FLAGS "-g -O0")
+
+# Override any build type flags
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -ffast-math")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -DNDEBUG -ffast-math")
+    set(CMAKE_CXX_FLAGS_RELEASE "-g -O0 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0 -DNDEBUG")
     
-    # Enable SIMD optimizations based on architecture
-    if(APPLE)
-        # For universal binaries, use runtime detection instead of compile-time flags
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")  # Let runtime code handle SIMD detection
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64-v2 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
-    endif()
 elseif(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /fp:fast")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi /DNDEBUG /fp:fast")
-    
-    # Enable SIMD for x86_64 on MSVC
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
-    endif()
+    set(CMAKE_CXX_FLAGS_RELEASE "/Od /Zi /DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Od /Zi /DNDEBUG")
 endif()
 
 # Fetch CLAP headers from official repository

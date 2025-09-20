@@ -16,7 +16,7 @@ A CLAP audio plugin that isolates harmonic content with tunable frequency select
 |-----------|--------|---------|-------------|
 | **Root Note** | A3-C6 | A4 (440Hz) | Base frequency for harmonic isolation |
 | **Fine Tune** | ±100 cents | 0 | Fine pitch adjustment in cents |
-| **Bandwidth** | 1-100% | 40% | Filter bandwidth (inverse Q factor) |
+| **Bandwidth** | 1-100% | 30% | Filter bandwidth (inverse Q factor) |
 | **Root Gain** | 0-100% | 60% | Amplitude of the root frequency |
 | **Harmonics** | 0-100% | 10% | Amount of musical harmonics (5th, 9th, 13th) |
 | **Low Octaves** | 0-100% | 10% | Sub-octave content below root |
