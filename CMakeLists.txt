@@ -10,19 +10,19 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")     # Support macOS Catalina and newer
 endif()
 
-# Force no optimization to preserve audio quality
-# Explicitly disable all optimizations that can break DSP floating point math
-set(CMAKE_CXX_FLAGS "-g -O0")
-set(CMAKE_C_FLAGS "-g -O0")
+# Try gentle optimization that preserves audio quality
+# Use -O1 (basic optimization) without aggressive math changes
+set(CMAKE_CXX_FLAGS "-g -O1")
+set(CMAKE_C_FLAGS "-g -O1")
 
 # Override any build type flags
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS_RELEASE "-g -O0 -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-g -O1 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O1 -DNDEBUG")
     
 elseif(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/Od /Zi /DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Od /Zi /DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O1 /Zi /DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O1 /Zi /DNDEBUG")
 endif()
 
 # Fetch CLAP headers from official repository
