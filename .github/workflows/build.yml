@@ -53,16 +53,21 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Rename plugin for platform
+      - name: Package plugin  
         shell: bash
         run: |
-          cp build/EvansHarmonicIsolator.clap EvansHarmonicIsolator-${{ matrix.platform }}.clap
+          # Create platform-specific zip with standard .clap filename inside
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            7z a EvansHarmonicIsolator-${{ matrix.platform }}.zip build/EvansHarmonicIsolator.clap
+          else
+            zip EvansHarmonicIsolator-${{ matrix.platform }}.zip build/EvansHarmonicIsolator.clap
+          fi
 
       - name: Upload plugin artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}
-          path: EvansHarmonicIsolator-${{ matrix.platform }}.clap
+          name: EvansHarmonicIsolator-${{ matrix.platform }}
+          path: EvansHarmonicIsolator-${{ matrix.platform }}.zip
           retention-days: 30
           if-no-files-found: error
 
