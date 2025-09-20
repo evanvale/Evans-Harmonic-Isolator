@@ -1,14 +1,11 @@
-name: Build Evans Harmonic Isolator
+name: Build Evan's Harmonic Isolator
 
 permissions:
   contents: write
 
 on:
   push:
-    branches: [ main, master ]
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -56,11 +53,11 @@ jobs:
       - name: Package plugin  
         shell: bash
         run: |
-          # Create platform-specific zip with standard .clap filename inside
+          # Create platform-specific zip with standard .clap filename inside (no directory structure)
           if [ "${{ runner.os }}" == "Windows" ]; then
             7z a EvansHarmonicIsolator-${{ matrix.platform }}.zip build/EvansHarmonicIsolator.clap
           else
-            zip EvansHarmonicIsolator-${{ matrix.platform }}.zip build/EvansHarmonicIsolator.clap
+            zip -j EvansHarmonicIsolator-${{ matrix.platform }}.zip build/EvansHarmonicIsolator.clap
           fi
 
       - name: Upload plugin artifact
