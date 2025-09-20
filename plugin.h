@@ -5,7 +5,7 @@
 #define PLUGIN_ID      "com.evan.harmonicisolator"
 #define PLUGIN_NAME    "Evan's Harmonic Isolator"  
 #define PLUGIN_VENDOR  "Evan"
-#define PLUGIN_VERSION "1.0.4"
+#define PLUGIN_VERSION "1.0.7"
 #define PLUGIN_DESC    "A tunable harmonic isolator with stepped frequency selection - elliptic AA filters"
 
 // parameter definitions - FINE_TUNE is now at position 0!
@@ -35,7 +35,7 @@ enum {
 #define ROOT_NOTE_DEFAULT 12.0  // A4 (440 Hz)
 
 #define BANDWIDTH_MIN 0.01
-#define BANDWIDTH_MAX 1.0
+#define BANDWIDTH_MAX 0.45
 #define BANDWIDTH_DEFAULT 0.3  // 30%
 
 #define ROOT_GAIN_MIN 0.0
