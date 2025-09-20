@@ -1,4 +1,4 @@
-# Evans Harmonic Isolator
+# Evan's Harmonic Isolator
 
 A CLAP audio plugin that isolates harmonic content with tunable frequency selection and musical intervals.
 
@@ -29,14 +29,14 @@ A CLAP audio plugin that isolates harmonic content with tunable frequency select
 
 ## Installation
 
-Download the `.clap` file for your platform from [Releases](../../releases) and copy to your CLAP/VST plugin folder.
+Download the `.clap` file for your platform from [Releases](../../releases) and copy to your CLAP plugin folder.
 
 ## Platform Support
 
 Builds automatically for:
-- **Linux**: x86_64 and ARM64
-- **Windows**: x86_64 and ARM64  
-- **macOS**: Universal binary (Intel + Apple Silicon)
+- **Linux**: x86_64
+- **Windows**: x86_64  
+- **macOS**: Intel (x86_64) and Apple Silicon (ARM64)
 
 ## License
 
@@ -44,6 +44,6 @@ Public domain. Do whatever you want with this.
 
 ## Credits
 
-- All C++ written by Claude AI
+- Development collaboration between Evan and Claude AI
 - [CLAP](https://github.com/free-audio/clap) - CLever Audio Plugin API
 - GitHub Actions for automated builds
