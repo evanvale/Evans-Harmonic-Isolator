@@ -5,6 +5,7 @@ A CLAP audio plugin that isolates harmonic content with tunable frequency select
 ## Features
 
 - **Root Note Selection**: A3 to C6 with fine tuning (±100 cents)
+- **Musical Tuning System**: Semitone-based frequency selection
 - **Harmonic Content**: Isolate 5th, 9th, and 13th harmonics
 - **Octave Controls**: Independent low and high octave adjustment
 - **Audio Processing**: 2x oversampling, saturation, stereo spread
@@ -12,20 +13,20 @@ A CLAP audio plugin that isolates harmonic content with tunable frequency select
 
 ## Parameters
 
-| Parameter | Range | Default | Description |
-|-----------|--------|---------|-------------|
-| **Root Note** | A3-C6 | A4 (440Hz) | Base frequency for harmonic isolation |
-| **Fine Tune** | ±100 cents | 0 | Fine pitch adjustment in cents |
-| **Bandwidth** | 1-100% | 30% | Filter bandwidth (inverse Q factor) |
-| **Root Gain** | 0-100% | 60% | Amplitude of the root frequency |
-| **Harmonics** | 0-100% | 10% | Amount of musical harmonics (5th, 9th, 13th) |
-| **Low Octaves** | 0-100% | 10% | Sub-octave content below root |
-| **High Octaves** | 0-100% | 20% | Super-octave content above root |
-| **Spread** | L100%-R100% | Center | Stereo spread amount |
-| **Saturation** | 0-10x | 2.4x | Harmonic saturation drive |
-| **LPF Cutoff** | 40Hz-20kHz | 8kHz | Low-pass filter frequency |
-| **Wet Boost** | -10 to +20dB | +6dB | Output level compensation |
-| **Dry/Wet** | 0-100% | 100% | Mix between processed and dry signal |
+| Parameter | Range | Description |
+|-----------|--------|-------------|
+| **Root Note (440Hz)** | A3-C6 | Base frequency for harmonic isolation |
+| **Fine Tune** | ±100 cents | Fine pitch adjustment in cents |
+| **Bandwidth** | 1-45% | Filter bandwidth (inverse Q factor) |
+| **Root Gain** | 0-100% | Amplitude of the root frequency |
+| **Harmonics** | 0-100% | Amount of musical harmonics (5th, 9th, 13th) |
+| **Low Octaves** | 0-100% | Sub-octave content below root |
+| **High Octaves** | 0-100% | Super-octave content above root |
+| **Spread** | L100%-R100% | Stereo spread amount |
+| **Saturation** | 0-10x | Harmonic saturation drive |
+| **LPF Cutoff** | 40Hz-20kHz | Low-pass filter frequency |
+| **Wet Boost** | -10 to +20dB | Output level compensation |
+| **Dry/Wet** | 0-100% | Mix between processed and dry signal |
 
 ## Installation
 
