@@ -45,6 +45,6 @@ Public domain. Do whatever you want with this.
 
 ## Credits
 
-- Development collaboration between Evan and Claude AI
+- All coding by Claude AI
 - [CLAP](https://github.com/free-audio/clap) - CLever Audio Plugin API
 - GitHub Actions for automated builds
