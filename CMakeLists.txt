@@ -1,42 +1,49 @@
 cmake_minimum_required(VERSION 3.15)
-project(evans_comb_filter)
+
+project(evans_comb_filter
+    VERSION 1.0
+    LANGUAGES C CXX
+)
+
+# ---- language standards ----
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Apple universal binary support
+# ---- macOS universal binary support ----
 if(APPLE)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")  # Universal binary for both Intel and Apple Silicon
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")     # Support macOS Catalina and newer
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "" FORCE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "" FORCE)
 endif()
 
-# Try -O2 optimization for better CPU performance while preserving audio quality
-# Avoid -ffast-math which breaks floating point precision needed for audio DSP
-set(CMAKE_CXX_FLAGS "-g -O2")
-set(CMAKE_C_FLAGS "-g -O2")
+# ---- sane default build type ----
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "" FORCE)
+endif()
 
-# Override any build type flags
+# ---- compiler flags (DSP-safe) ----
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS_RELEASE "-g -O2 -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -DNDEBUG")
-    
+    add_compile_options(
+        -O2
+        -g
+        -fno-fast-math
+    )
 elseif(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Zi /DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi /DNDEBUG")
+    add_compile_options(/O2 /Zi)
 endif()
 
-# Fetch CLAP headers from official repository
+# ---- fetch CLAP headers ----
 include(FetchContent)
 
 FetchContent_Declare(
-  clap
-  GIT_REPOSITORY https://github.com/free-audio/clap.git
-  GIT_TAG        1.2.6
+    clap
+    GIT_REPOSITORY https://github.com/free-audio/clap.git
+    GIT_TAG        1.2.6
 )
 
 FetchContent_MakeAvailable(clap)
 
-# create the plugin library
+# ---- plugin target ----
 add_library(evans_comb_filter SHARED
     plugin.h
     plugin.cpp
@@ -46,12 +53,21 @@ add_library(evans_comb_filter SHARED
     utils.cpp
 )
 
-# Link CLAP headers
-target_include_directories(evans_comb_filter PRIVATE ${clap_SOURCE_DIR}/include)
+# ---- include paths ----
+target_include_directories(evans_comb_filter PRIVATE
+    ${clap_SOURCE_DIR}/include
+)
 
-# set proper library properties for CLAP plugin
+# ---- CLAP plugin output settings ----
 set_target_properties(evans_comb_filter PROPERTIES
     PREFIX ""
     SUFFIX ".clap"
     OUTPUT_NAME "EvansHarmonicIsolator"
 )
+
+# ---- platform sanity ----
+if(APPLE)
+    set_target_properties(evans_comb_filter PROPERTIES
+        MACOSX_RPATH ON
+    )
+endif()
