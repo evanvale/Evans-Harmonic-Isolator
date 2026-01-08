@@ -20,9 +20,7 @@ jobs:
           - os: ubuntu-latest
             platform: linux-x64
           - os: macos-13
-            platform: macos-intel
-          - os: macos-14
-            platform: macos-arm64
+            platform: macos-universal
           - os: windows-latest
             platform: windows-x64
 
