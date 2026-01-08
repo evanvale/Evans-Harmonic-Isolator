@@ -68,10 +68,10 @@ static inline double smooth_bass_boost(double freq) {
     
     // Use smooth curves instead of steps
     if (freq <= 60.0) {
-        // Very low frequencies: smooth curve from 4.0 to current
+        // Very low frequencies: smooth curve from 8.0 to 4.0
         double t = freq / 60.0;
         t = t * t; // square for smoother curve
-        return 4.0 * (0.5 + 0.5 * t) + 4.0 * (1.0 - t);  // 4.0 to 8.0 range
+        return 8.0 - 4.0 * t;  // 8.0 at DC, 4.0 at 60Hz
     } else if (freq <= 100.0) {
         // Sub-bass range: 6.0 to 4.0
         double t = (freq - 60.0) / 40.0;
