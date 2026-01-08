@@ -312,6 +312,6 @@ void downsample_2x(const float *input, float *output, uint32_t input_frames, aa_
         float sample1 = process_aa_filter(input[i * 2], aa_filter);
         float sample2 = process_aa_filter(input[i * 2 + 1], aa_filter);
         
-        output[i] = sample1 * 2.0f;  // Compensate for decimation loss
+        output[i] = sample1;  // No gain compensation needed.
     }
 }
