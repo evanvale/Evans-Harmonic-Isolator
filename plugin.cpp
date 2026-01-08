@@ -158,6 +158,7 @@ void minimal_reset(const clap_plugin *plugin) {
     p->lpf2_state_R = 0.0f;
     p->lpf3_state_L = 0.0f;
     p->lpf3_state_R = 0.0f;
+    p->coefficients_need_update = true;
 }
 
 clap_process_status minimal_process(const clap_plugin *plugin, const clap_process_t *process) {
