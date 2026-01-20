@@ -51,10 +51,11 @@ static void enable_flush_to_zero() {
 }
 
 // Simplified anti-aliasing filter coefficients for 2x oversampling
-// 2nd order Butterworth @ 0.45 Nyquist (much simpler than 8th order elliptic)
-static const float AA_FILTER_COEFFS[2][5] = {
+// 3rd order Butterworth @ 0.45 Nyquist (6th order total)
+static const float AA_FILTER_COEFFS[3][5] = {
     {0.0976f, 0.1953f, 0.0976f, -1.0177f, 0.4082f},  // 2nd order butterworth
-    {0.0976f, 0.1953f, 0.0976f, -1.0177f, 0.4082f}   // 2nd order butterworth
+    {0.0976f, 0.1953f, 0.0976f, -1.0177f, 0.4082f},  // 2nd order butterworth
+    {0.0976f, 0.1953f, 0.0976f, -1.0177f, 0.4082f}   // 2nd order butterworth (NEW)
 };
 
 static inline double smooth_gain_comp(double Q) {
@@ -116,7 +117,7 @@ void init_oversampling(minimal_plugin_t *p) {
     memset(p->oversample_buffer_R, 0, p->oversample_buffer_size * sizeof(float));
     
     // Initialize simplified AA filter coefficients (2 biquads instead of 4)
-    for (int i = 0; i < 2; i++) {
+    for (int i = 3; i < 4; i++) {
         // Upsample filters
         p->upsample_aa_L.b0[i] = AA_FILTER_COEFFS[i][0];
         p->upsample_aa_L.b1[i] = AA_FILTER_COEFFS[i][1];
@@ -196,8 +197,8 @@ void reset_aa_filters(minimal_plugin_t *p) {
 float process_aa_filter(float input, aa_filter_t *filter) {
     float output = input;
     
-    // Process through only 2 biquads instead of 4 (4th order instead of 8th)
-    for (int i = 0; i < 2; i++) {
+    // Process through only 3 biquads instead of 4 (4th order instead of 8th)
+    for (int i = 0; i < 3; i++) {
         float temp = filter->b0[i] * output + filter->b1[i] * filter->x1[i] + filter->b2[i] * filter->x2[i]
                     - filter->a1[i] * filter->y1[i] - filter->a2[i] * filter->y2[i];
         
