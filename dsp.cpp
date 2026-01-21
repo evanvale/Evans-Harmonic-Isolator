@@ -116,8 +116,8 @@ void init_oversampling(minimal_plugin_t *p) {
     memset(p->oversample_buffer_L, 0, p->oversample_buffer_size * sizeof(float));
     memset(p->oversample_buffer_R, 0, p->oversample_buffer_size * sizeof(float));
     
-    // Initialize simplified AA filter coefficients (2 biquads instead of 4)
-    for (int i = 3; i < 4; i++) {
+    // Initialize simplified AA filter coefficients (3 biquads instead of 4)
+    for (int i = 0; i < 3; i++) {
         // Upsample filters
         p->upsample_aa_L.b0[i] = AA_FILTER_COEFFS[i][0];
         p->upsample_aa_L.b1[i] = AA_FILTER_COEFFS[i][1];
