@@ -146,7 +146,7 @@ void init_oversampling(minimal_plugin_t *p) {
     }
     
     // Zero out unused filter stages
-    for (int i = 2; i < 4; i++) {
+    for (int i = 3; i < 4; i++) {
         p->upsample_aa_L.b0[i] = p->upsample_aa_L.b1[i] = p->upsample_aa_L.b2[i] = 0.0f;
         p->upsample_aa_L.a1[i] = p->upsample_aa_L.a2[i] = 0.0f;
         p->upsample_aa_R.b0[i] = p->upsample_aa_R.b1[i] = p->upsample_aa_R.b2[i] = 0.0f;
