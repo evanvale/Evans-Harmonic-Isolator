@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(evans_comb_filter
-    VERSION 1.1.2
+    VERSION 1.1.3
     LANGUAGES C CXX
 )
 
