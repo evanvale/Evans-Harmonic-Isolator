@@ -37,7 +37,7 @@ Download the `.clap` file for your platform from [Releases](../../releases) and 
 Builds automatically for:
 - **Linux**: x86_64
 - **Windows**: x86_64  
-- **macOS**: Intel (x86_64) and Apple Silicon (ARM64)
+- **macOS**: universal build (Intel and Apple Silicon )
 
 ## License
 
