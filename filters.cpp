@@ -33,7 +33,7 @@ void calc_constant_power_pan(float spread, float *pan_L, float *pan_R) {
     *pan_R *= norm_factor;
 }
 
-// Optimized single filter processing with unrolled loop for common cases
+// Optimized single filter processing
 static inline float process_single_biquad(float input, 
                                           float b0, float b1, float b2, float a1, float a2,
                                           float &x1, float &x2, float &y1, float &y2) {
@@ -47,7 +47,7 @@ static inline float process_single_biquad(float input,
     return output;
 }
 
-// Process a single channel through all active filters with optimization
+// Process a single channel through all active filters
 void process_channel_filters(minimal_plugin_t *p, float *buffer, uint32_t frames, bool is_left_channel) {
     // Early exit if no active filters
     if (p->num_active_filters == 0) {
@@ -83,186 +83,36 @@ void process_channel_filters(minimal_plugin_t *p, float *buffer, uint32_t frames
     float dry_gain = (1.0f - p->dry_wet_smooth.current) * oversample_compensation;
     float wet_gain = p->dry_wet_smooth.current * wet_boost_linear * oversample_compensation * pan_factor;
     
-    // Unroll filter processing for common cases to reduce loop overhead
-    switch (p->num_active_filters) {
-        case 1: {
-            // Single filter - most common case, fully optimized
-            int oct = p->active_filters[0].octave_idx;
-            int semi = p->active_filters[0].semitone_idx;
+    // Process all frames
+    for (uint32_t frame = 0; frame < frames; ++frame) {
+        float input_sample = buffer[frame];
+        float combined_output = 0.0f;
+        
+        // Process through all active filters
+        for (int i = 0; i < p->num_active_filters; i++) {
+            int oct = p->active_filters[i].octave_idx;
+            int semi = p->active_filters[i].semitone_idx;
             
-            float b0 = p->bp_b0[oct][semi];
-            float b1 = p->bp_b1[oct][semi];
-            float b2 = p->bp_b2[oct][semi];
-            float a1 = p->bp_a1[oct][semi];
-            float a2 = p->bp_a2[oct][semi];
-            
-            for (uint32_t frame = 0; frame < frames; ++frame) {
-                float input_sample = buffer[frame];
-                
-                float bp_output = process_single_biquad(input_sample, b0, b1, b2, a1, a2,
-                                                       bp_x1[oct][semi], bp_x2[oct][semi], 
-                                                       bp_y1[oct][semi], bp_y2[oct][semi]);
-                
-                // Apply saturation
-                float sat_output = bypass_saturation ? bp_output : 
-                                  tanhf(bp_output * sat_amount) * inv_internal_gain;
-                
-                // Apply LPF and mix
-                float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
-                                                       p->lpf_coeff, p->lpf_cutoff_smooth.current);
-                
-                buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
-                
-                // Safety clipper
-                if (fabsf(buffer[frame]) > 0.95f) {
-                    buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
-                }
-            }
-            break;
+            combined_output += process_single_biquad(input_sample,
+                                                   p->bp_b0[oct][semi], p->bp_b1[oct][semi], p->bp_b2[oct][semi],
+                                                   p->bp_a1[oct][semi], p->bp_a2[oct][semi],
+                                                   bp_x1[oct][semi], bp_x2[oct][semi], 
+                                                   bp_y1[oct][semi], bp_y2[oct][semi]);
         }
         
-        case 2: {
-            // Two filters - second most common case
-            for (uint32_t frame = 0; frame < frames; ++frame) {
-                float input_sample = buffer[frame];
-                float combined_output = 0.0f;
-                
-                // Unroll the two filter operations
-                for (int i = 0; i < 2; i++) {
-                    int oct = p->active_filters[i].octave_idx;
-                    int semi = p->active_filters[i].semitone_idx;
-                    
-                    combined_output += process_single_biquad(input_sample,
-                                                           p->bp_b0[oct][semi], p->bp_b1[oct][semi], p->bp_b2[oct][semi],
-                                                           p->bp_a1[oct][semi], p->bp_a2[oct][semi],
-                                                           bp_x1[oct][semi], bp_x2[oct][semi], 
-                                                           bp_y1[oct][semi], bp_y2[oct][semi]);
-                }
-                
-                // Apply saturation
-                float sat_output = bypass_saturation ? combined_output : 
-                                  tanhf(combined_output * sat_amount) * inv_internal_gain;
-                
-                // Apply LPF and mix
-                float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
-                                                       p->lpf_coeff, p->lpf_cutoff_smooth.current);
-                
-                buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
-                
-                // Safety clipper
-                if (fabsf(buffer[frame]) > 0.95f) {
-                    buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
-                }
-            }
-            break;
-        }
+        // Apply saturation
+        float sat_output = bypass_saturation ? combined_output : 
+                          tanhf(combined_output * sat_amount) * inv_internal_gain;
         
-        case 3: {
-            // Three filters
-            for (uint32_t frame = 0; frame < frames; ++frame) {
-                float input_sample = buffer[frame];
-                float combined_output = 0.0f;
-                
-                // Unroll the three filter operations
-                for (int i = 0; i < 3; i++) {
-                    int oct = p->active_filters[i].octave_idx;
-                    int semi = p->active_filters[i].semitone_idx;
-                    
-                    combined_output += process_single_biquad(input_sample,
-                                                           p->bp_b0[oct][semi], p->bp_b1[oct][semi], p->bp_b2[oct][semi],
-                                                           p->bp_a1[oct][semi], p->bp_a2[oct][semi],
-                                                           bp_x1[oct][semi], bp_x2[oct][semi], 
-                                                           bp_y1[oct][semi], bp_y2[oct][semi]);
-                }
-                
-                // Apply saturation
-                float sat_output = bypass_saturation ? combined_output : 
-                                  tanhf(combined_output * sat_amount) * inv_internal_gain;
-                
-                // Apply LPF and mix
-                float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
-                                                       p->lpf_coeff, p->lpf_cutoff_smooth.current);
-                
-                buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
-                
-                // Safety clipper
-                if (fabsf(buffer[frame]) > 0.95f) {
-                    buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
-                }
-            }
-            break;
-        }
+        // Apply LPF and mix
+        float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
+                                               p->lpf_coeff, p->lpf_cutoff_smooth.current);
         
-        case 4: {
-            // Four filters
-            for (uint32_t frame = 0; frame < frames; ++frame) {
-                float input_sample = buffer[frame];
-                float combined_output = 0.0f;
-                
-                // Unroll the four filter operations
-                for (int i = 0; i < 4; i++) {
-                    int oct = p->active_filters[i].octave_idx;
-                    int semi = p->active_filters[i].semitone_idx;
-                    
-                    combined_output += process_single_biquad(input_sample,
-                                                           p->bp_b0[oct][semi], p->bp_b1[oct][semi], p->bp_b2[oct][semi],
-                                                           p->bp_a1[oct][semi], p->bp_a2[oct][semi],
-                                                           bp_x1[oct][semi], bp_x2[oct][semi], 
-                                                           bp_y1[oct][semi], bp_y2[oct][semi]);
-                }
-                
-                // Apply saturation
-                float sat_output = bypass_saturation ? combined_output : 
-                                  tanhf(combined_output * sat_amount) * inv_internal_gain;
-                
-                // Apply LPF and mix
-                float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
-                                                       p->lpf_coeff, p->lpf_cutoff_smooth.current);
-                
-                buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
-                
-                // Safety clipper
-                if (fabsf(buffer[frame]) > 0.95f) {
-                    buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
-                }
-            }
-            break;
-        }
+        buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
         
-        default: {
-            // General case for 5+ filters
-            for (uint32_t frame = 0; frame < frames; ++frame) {
-                float input_sample = buffer[frame];
-                float combined_output = 0.0f;
-                
-                // Process through active filters
-                for (int i = 0; i < p->num_active_filters; i++) {
-                    int oct = p->active_filters[i].octave_idx;
-                    int semi = p->active_filters[i].semitone_idx;
-                    
-                    combined_output += process_single_biquad(input_sample,
-                                                           p->bp_b0[oct][semi], p->bp_b1[oct][semi], p->bp_b2[oct][semi],
-                                                           p->bp_a1[oct][semi], p->bp_a2[oct][semi],
-                                                           bp_x1[oct][semi], bp_x2[oct][semi], 
-                                                           bp_y1[oct][semi], bp_y2[oct][semi]);
-                }
-                
-                // Apply saturation
-                float sat_output = bypass_saturation ? combined_output : 
-                                  tanhf(combined_output * sat_amount) * inv_internal_gain;
-                
-                // Apply LPF and mix
-                float lpf_output = process_adaptive_lpf(sat_output, lpf_state, lpf2_state, lpf3_state, 
-                                                       p->lpf_coeff, p->lpf_cutoff_smooth.current);
-                
-                buffer[frame] = input_sample * dry_gain + lpf_output * wet_gain;
-                
-                // Safety clipper
-                if (fabsf(buffer[frame]) > 0.95f) {
-                    buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
-                }
-            }
-            break;
+        // Safety clipper
+        if (fabsf(buffer[frame]) > 0.95f) {
+            buffer[frame] = tanhf(buffer[frame] * 0.7f) / 0.7f;
         }
     }
 }
@@ -292,7 +142,7 @@ float process_adaptive_lpf(float combined_output, float &lpf_state, float &lpf2_
     return output;
 }
 
-// Simplified oversampling functions (removed SIMD for better predictability)
+// Simplified oversampling functions
 void upsample_2x(const float *input, float *output, uint32_t input_frames, aa_filter_t *aa_filter) {
     // Simple scalar implementation - more predictable than SIMD for small buffers
     for (uint32_t i = 0; i < input_frames; i++) {
