@@ -5,7 +5,7 @@
 #define PLUGIN_ID      "com.evan.harmonicisolator"
 #define PLUGIN_NAME    "Evan's Harmonic Isolator"  
 #define PLUGIN_VENDOR  "Evan"
-#define PLUGIN_VERSION "1.0.7"
+#define PLUGIN_VERSION "1.1.6"
 #define PLUGIN_DESC    "A tunable harmonic isolator with stepped frequency selection - elliptic AA filters"
 
 // parameter definitions - FINE_TUNE is now at position 0!
