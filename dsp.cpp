@@ -47,6 +47,11 @@ static void enable_flush_to_zero() {
     #if defined(__SSE__)
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
     _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+    #elif defined(__aarch64__) || defined(__arm64__)
+    uint64_t fpcr;
+    asm volatile("mrs %0, fpcr" : "=r"(fpcr));
+    fpcr |= (1 << 24);  // FZ bit
+    asm volatile("msr fpcr, %0" : : "r"(fpcr));
     #endif
 }
 
